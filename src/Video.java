@@ -21,7 +21,7 @@ public class Video {
 	}
 	
 	public String getInfo(){
-		return this.filename +"\t"+this.duration+"\t"+this.biterate+"\t"+this.size+"\tn"+"\t"+this.psnr;
+		return this.filename +"\t"+this.duration+"\t"+this.biterate+"000\t"+this.psnr+"\tn";
 	}
 	
 }
