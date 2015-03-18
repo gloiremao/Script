@@ -18,10 +18,12 @@ public class script {
 
 	public static void main(String[] args) throws IOException {
 		
-		String path = "~/../rajiv/MoreAJVideos/";
-		String outpath = "//data5/MoreAJvideos/";
+		String path = "~/../rajiv/TestVideos/VideoDataset-3/";
+		String RawOutpath = "//data5/TestVideos/VideoDataset-3/";
+		String x264Outpath = "//data5/TestVideos/VideoDataset-3/";
 		
 		if(args.length == 1){
+			
 			//read the video list
 			String filename = args[0];
 			File list = new File(filename);
@@ -29,6 +31,7 @@ public class script {
 			String fname;
 			int index = 0;
 			
+			//read the video list
 			while((fname = existed.readLine()) != null){
 				Video v = new Video();
 				v.filename = fname;
@@ -44,11 +47,11 @@ public class script {
 			getInfo(path);
 			
 			//mp4 -> raw video
-			convert(path,outpath);
+			convert(path,RawOutpath);
 			
 			
 			//Compute PSNR
-			getOriginalPSNR(outpath);
+			getOriginalPSNR(RawOutpath,x264Outpath);
 			
 			//compute TI/SI
 			//getTISI();
@@ -94,14 +97,14 @@ public class script {
 		tisi.close();*/
 	}
 
-	private static void getOriginalPSNR(String outpath) {
+	private static void getOriginalPSNR(String rawoutpath, String x264Outpath) {
 		// TODO Auto-generated method stub
 		System.out.println("Compute original psnr with x264 ...");
 		
 		for(int i = 0;i < video_list.size() ;i++){
 			if(video_list.get(i).width != null && video_list.get(i).height != null){
-				cmd[2] = "x264 --input-res "+video_list.get(i).width+"x"+video_list.get(i).height+" --bitrate "+video_list.get(i).biterate+" --psnr -o //data5/MoreAJvideos/video_"
-						+video_list.get(i).id+".264 //data5/MoreAJvideos/video_"+video_list.get(i).id+".yuv 2>&1 | grep \": PSNR\" | awk '{print $5}'";
+				cmd[2] = "x264 --input-res "+video_list.get(i).width+"x"+video_list.get(i).height+" --bitrate "+video_list.get(i).biterate+" --psnr -o "+x264Outpath+"video_"
+						+video_list.get(i).id+".264 "+rawoutpath+"video_"+video_list.get(i).id+".yuv 2>&1 | grep \": PSNR\" | awk '{print $5}'";
 				sys_exec(cmd);
 				String[] tmp = stdout.split(":");
 				video_list.get(i).psnr = Double.parseDouble(tmp[1]);
@@ -109,7 +112,9 @@ public class script {
 				
 			}else {
 				System.out.println("Fail at "+video_list.get(i).filename);
+				
 			}
+			System.out.println(((i*100)/video_list.size())+"%...");
 		}
 	}
 	
@@ -226,7 +231,7 @@ public class script {
 		// TODO Auto-generated method stub
 		try {
 			stdout = null;
-			//System.out.println("Debug:"+command[2]);	
+			System.out.println("Debug:"+command[2]);	
 			Process p = r.exec(command);
 			p.waitFor();
 			BufferedReader b = new BufferedReader(new InputStreamReader(p.getInputStream()));
